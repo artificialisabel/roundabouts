@@ -1,0 +1,1080 @@
+/* the roundabouts — solarpunk glass chrome over a painterly garden.
+   Menlo, all caps, frosted translucent panels. */
+
+:root {
+  --mono: 'Menlo', 'Monaco', 'Consolas', 'DejaVu Sans Mono', monospace;
+
+  --ink: #3a352f;
+  --ink-soft: rgba(58, 53, 47, 0.6);
+  --glass: rgba(252, 249, 242, 0.52);
+  --glass-2: rgba(255, 253, 248, 0.55);
+  --glass-deep: rgba(46, 41, 36, 0.72);
+  --leaf: #6f8a5a;
+  --leaf-soft: rgba(111, 138, 90, 0.18);
+  --rose: #c96a5b;
+  --amber: #dfae5c;
+  --line: rgba(58, 53, 47, 0.3);
+  --line-soft: rgba(58, 53, 47, 0.14);
+  --edge: rgba(255, 255, 255, 0.55);
+  --shadow: 0 10px 32px rgba(74, 56, 42, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+
+  --r-panel: 20px;
+  --r-ctl: 9px;
+
+  /* the sky's own colour, as an "r g b" triple so rules can dial its alpha.
+     environment.js repaints it with the time of day, so the page behind the
+     canvas is never a stripe of the wrong cream. */
+  --sky: 242 226 216;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: rgb(var(--sky));
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+#scene {
+  position: fixed;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* keep covering the screen while a phone browser's chrome slides in and out,
+     so the garden never stops at a hard line above the address bar. main.js
+     measures this box rather than the window and never writes px back onto it. */
+  height: 100lvh;
+}
+
+/* ---------- glass card bones ---------- */
+
+.wobble-a,
+#journal,
+#garden-bar {
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(16px) saturate(1.25);
+  backdrop-filter: blur(16px) saturate(1.25);
+  border: 1px solid var(--edge);
+  border-radius: var(--r-panel);
+  box-shadow: var(--shadow);
+}
+
+/* ---------- masthead ---------- */
+
+#masthead {
+  position: fixed;
+  top: 20px;
+  left: 24px;
+  z-index: 10;
+  pointer-events: none;
+  user-select: none;
+}
+#masthead h1 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.32em;
+}
+#masthead .sub {
+  margin: 4px 0 0 1px;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--ink-soft);
+}
+
+/* ---------- the journal panel ---------- */
+
+#journal {
+  position: fixed;
+  top: 88px;
+  left: 20px;
+  bottom: 86px;
+  z-index: 10;
+  width: 282px;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 14px;
+  gap: 8px;
+}
+
+#tabs {
+  display: flex;
+  gap: 5px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 2px 4px;
+  font-family: var(--mono);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--r-ctl);
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.tab svg {
+  width: 20px;
+  height: 20px;
+}
+.tab-label {
+  font-size: 7.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.tab:hover {
+  color: var(--ink);
+  background: var(--glass-2);
+}
+.tab.active {
+  color: #fdfaf3;
+  background: var(--leaf);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+#controls {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+#controls::-webkit-scrollbar {
+  width: 5px;
+}
+#controls::-webkit-scrollbar-thumb {
+  background: var(--line-soft);
+  border-radius: 3px;
+}
+
+.group {
+  margin-bottom: 12px;
+}
+.group-title {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--ink-soft);
+  margin: 8px 0 5px;
+  border-bottom: 1px solid var(--line-soft);
+  padding-bottom: 4px;
+}
+
+.param {
+  margin: 8px 0;
+}
+.param-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.param-label {
+  font-size: 9.5px;
+  letter-spacing: 0.05em;
+}
+.param-value {
+  font-size: 9px;
+  color: var(--ink-soft);
+}
+
+/* sliders */
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 20px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+input[type='range']::-webkit-slider-runnable-track {
+  height: 2px;
+  background: var(--line);
+  border-radius: 1px;
+}
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  margin-top: -5px;
+  border-radius: 4px;
+  background: var(--leaf);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 1px 4px rgba(58, 53, 47, 0.35);
+}
+input[type='range']::-moz-range-track {
+  height: 2px;
+  background: var(--line);
+  border-radius: 1px;
+}
+input[type='range']::-moz-range-thumb {
+  width: 11px;
+  height: 11px;
+  border-radius: 4px;
+  background: var(--leaf);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 1px 4px rgba(58, 53, 47, 0.35);
+}
+
+/* colour swatches */
+.swatches {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 5px;
+}
+.swatch {
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--edge);
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 0;
+  box-shadow: inset 0 0 0 1px rgba(58, 53, 47, 0.15);
+}
+.swatch:hover {
+  transform: scale(1.12);
+}
+.swatch.selected {
+  box-shadow: 0 0 0 1.5px var(--glass-2), 0 0 0 3px var(--ink);
+}
+input[type='color'] {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 1px dashed var(--line);
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+}
+input[type='color']::-webkit-color-swatch-wrapper {
+  padding: 2px;
+}
+input[type='color']::-webkit-color-swatch {
+  border: none;
+  border-radius: 4px;
+}
+
+/* segmented choice */
+.segmented {
+  display: flex;
+  gap: 4px;
+  margin-top: 5px;
+}
+.seg {
+  flex: 1;
+  padding: 4px 0;
+  font-family: var(--mono);
+  font-size: 8.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  background: var(--glass-2);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-ctl);
+  cursor: pointer;
+}
+.seg.active {
+  background: var(--leaf);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #fdfaf3;
+}
+
+/* ---------- seed row ---------- */
+
+#seed-row {
+  border-top: 1px solid var(--line-soft);
+  padding-top: 2px;
+}
+.seed-box {
+  display: flex;
+  gap: 6px;
+}
+.seed-box input {
+  flex: 1;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.03em;
+  color: var(--ink);
+  background: var(--glass-2);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-ctl);
+  padding: 6px 8px;
+  min-width: 0;
+}
+.seed-actions {
+  display: flex;
+  gap: 5px;
+  margin-top: 6px;
+}
+
+.chip {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: var(--glass-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-ctl);
+  padding: 4px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.chip:hover {
+  background: rgba(255, 255, 255, 0.75);
+}
+.chip.active {
+  background: var(--leaf);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #fdfaf3;
+}
+.chip.danger {
+  background: var(--rose);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #fdfaf3;
+}
+
+/* ---------- seed packets shelf ---------- */
+
+#shelf-wrap {
+  max-height: 116px;
+  display: flex;
+  flex-direction: column;
+}
+#shelf-wrap .group-title {
+  margin-top: 0;
+}
+#shelf {
+  overflow-y: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 2px 0;
+  scrollbar-width: thin;
+}
+.shelf-empty {
+  margin: 2px 0;
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+}
+.packet {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: var(--glass-2);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-ctl);
+  cursor: pointer;
+}
+.packet:hover {
+  border-color: var(--line);
+}
+.packet-icon svg {
+  width: 12px;
+  height: 12px;
+  display: block;
+  color: var(--leaf);
+}
+.packet-x {
+  color: var(--ink-soft);
+  padding: 0 1px;
+  display: none;
+}
+.packet:hover .packet-x {
+  display: inline;
+}
+.packet-x:hover {
+  color: var(--rose);
+}
+
+/* ---------- garden bar ---------- */
+
+#garden-bar {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  max-width: 94vw;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+/* ui.js groups the bar into two rows; a wide screen dissolves them again so
+   the bar stays the single strip it has always been */
+.bar-row {
+  display: contents;
+}
+.bar-group {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.bar-group input[type='range'] {
+  width: 84px;
+}
+.bar-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+.bar-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--line-soft);
+}
+.bar-count {
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  margin-left: 2px;
+}
+
+/* ---------- the bench (specimen preview) ---------- */
+
+#bench {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 12;
+  width: 252px;
+  padding: 6px 10px 8px;
+}
+#bench-grip {
+  height: 16px;
+  display: grid;
+  place-items: center;
+  cursor: grab;
+  margin-bottom: 2px;
+  touch-action: none;
+}
+#bench-grip::before {
+  content: '';
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--line);
+}
+#bench-grip:active {
+  cursor: grabbing;
+}
+#bench-canvas {
+  display: block;
+  width: 100%;
+  height: 190px;
+  cursor: grab;
+  touch-action: none;
+  border-radius: 12px;
+}
+#bench-canvas:active {
+  cursor: grabbing;
+}
+.bench-hint {
+  margin: 5px 0 1px;
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+/* ---------- neighborhood modes ---------- */
+
+body.mode-walk #journal,
+body.mode-walk #bench,
+body.mode-transition #journal,
+body.mode-transition #bench {
+  display: none;
+}
+body:not(.mode-walk) #hud {
+  display: none;
+}
+body.mode-walk .tend-only,
+body.mode-transition .tend-only {
+  display: none;
+}
+
+#hud {
+  position: fixed;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+}
+#reticle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: rgba(58, 53, 47, 0.55);
+  box-shadow: 0 0 0 2px rgba(252, 249, 242, 0.55);
+}
+#interact-chip {
+  position: absolute;
+  left: 50%;
+  bottom: 120px;
+  transform: translateX(-50%);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--ink);
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(14px) saturate(1.25);
+  backdrop-filter: blur(14px) saturate(1.25);
+  border: 1px solid var(--edge);
+  border-radius: var(--r-ctl);
+  padding: 8px 16px;
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+#walk-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(242, 226, 216, 0.3);
+  pointer-events: none;
+}
+.walk-card {
+  padding: 20px 28px;
+  text-align: center;
+}
+.walk-card h2 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+}
+.walk-card p {
+  margin: 0;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--ink-soft);
+}
+
+#street-btn {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 11;
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(14px) saturate(1.25);
+  backdrop-filter: blur(14px) saturate(1.25);
+  box-shadow: var(--shadow);
+  padding: 8px 14px;
+}
+
+/* ---------- hint & toast ---------- */
+
+#hint {
+  position: fixed;
+  bottom: 66px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9;
+  margin: 0;
+  font-size: 8.5px;
+  letter-spacing: 0.1em;
+  color: var(--ink-soft);
+  pointer-events: none;
+  user-select: none;
+  text-shadow: 0 1px 0 rgba(252, 249, 242, 0.7);
+}
+
+#toast {
+  position: fixed;
+  bottom: 118px;
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  z-index: 20;
+  background: var(--glass-deep);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  color: #f4efe6;
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  padding: 8px 15px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--r-ctl);
+  opacity: 0;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+}
+#toast.show {
+  opacity: 0.97;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ---------- paper grain & vignette ---------- */
+
+#grain {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0.45;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='280'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='2' stitchTiles='stitch' seed='11'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.86 0 0 0 0 0.82 0 0 0 0 0.78 0.6 0.6 0.6 0 0'/%3E%3C/filter%3E%3Crect width='280' height='280' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 280px 280px;
+}
+
+#vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 49;
+  pointer-events: none;
+  background: radial-gradient(120% 95% at 50% 42%, transparent 58%, rgba(88, 56, 42, 0.15) 100%);
+}
+
+/* ---------- focus & motion ---------- */
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 1.5px dashed var(--leaf);
+  outline-offset: 2px;
+}
+input:focus {
+  outline: none;
+}
+input:focus-visible {
+  outline: 1.5px dashed var(--leaf);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #toast {
+    transition: none;
+  }
+}
+
+/* ---------- small screens ---------- */
+
+@media (max-width: 980px) {
+  #bench {
+    display: none;
+  }
+}
+
+@media (max-width: 820px) {
+  #journal {
+    width: 250px;
+    left: 12px;
+    top: 82px;
+    bottom: 118px;
+  }
+  #masthead h1 {
+    font-size: 13px;
+  }
+  #hint {
+    display: none;
+  }
+  #garden-bar {
+    bottom: 10px;
+    gap: 6px;
+    padding: 6px 10px;
+  }
+}
+
+/* ============================================================
+   PHONES — one screen at a time.
+   A narrow screen cannot hold the journal, the bench, the garden
+   and the menu at once, so tending splits in two:
+     · pane-bench — the potting bench: preview + sliders, filling
+       the screen, with "plant it" at the foot of it
+     · pane-bed   — the garden itself, with just the bottom menu
+   ui.js owns the pane-* classes on <body>; the breakpoint below
+   must stay in step with COMPACT_MEDIA there.
+   ============================================================ */
+
+/* the two pane buttons exist on every screen, but only phones show them */
+#pane-plant,
+#pane-design {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  /* ---------- edges ---------- */
+
+  /* The world fades into paper top and bottom rather than being cut off, so
+     browser chrome and the menu sit on mist instead of on a seam. It rides
+     just above the canvas and below every panel — over the glass it would
+     only bleach whatever sits lowest on the screen. */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background:
+      linear-gradient(to top, rgb(var(--sky) / 0.8) 0, rgb(var(--sky) / 0) 17vh),
+      linear-gradient(to bottom, rgb(var(--sky) / 0.5) 0, rgb(var(--sky) / 0) 13vh);
+  }
+
+  /* ---------- shared chrome ---------- */
+
+  #masthead {
+    top: calc(14px + env(safe-area-inset-top, 0px));
+    left: 16px;
+  }
+  #masthead h1 {
+    font-size: 12px;
+    letter-spacing: 0.26em;
+  }
+  #masthead .sub {
+    font-size: 7.5px;
+  }
+  /* inside a garden the title is just one more thing to read */
+  body.mode-tend #masthead {
+    display: none;
+  }
+
+  /* leaving is a corner button, not a slab floating over the menu */
+  #street-btn {
+    top: calc(12px + env(safe-area-inset-top, 0px));
+    right: 12px;
+    bottom: auto;
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    padding: 8px 12px;
+  }
+
+  /* a toast tucked under a five-row menu is a toast nobody reads */
+  #toast {
+    top: calc(56px + env(safe-area-inset-top, 0px));
+    bottom: auto;
+  }
+
+  /* "click bare soil when done" is desktop advice — here "done ✓" is */
+  .editing-hint {
+    display: none;
+  }
+
+  /* no keyboard, so no key to name — just say what tapping does */
+  .chip-key {
+    display: none;
+  }
+  #interact-chip {
+    max-width: calc(100vw - 40px);
+  }
+
+  /* ---------- the bottom menu ---------- */
+
+  #garden-bar {
+    left: 10px;
+    right: 10px;
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    transform: none;
+    max-width: none;
+    flex-direction: column;
+    /* the desktop bar wraps; a wrapping column sizes its lines to their own
+       content, which would let a row hang off the side of the sheet */
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 7px;
+    padding: 10px 12px;
+  }
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    /* without this the row is floored at its min-content width and the last
+       slider hangs off the end of the bar */
+    min-width: 0;
+  }
+  /* in your own bed the sliders get a line each and room to be dragged */
+  body.mode-tend .bar-row-a {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  body.mode-tend .bar-row-a .weather-chip {
+    align-self: flex-start;
+  }
+  .bar-row-a .bar-sep {
+    display: none;
+  }
+  .bar-row-a .bar-group {
+    flex: 1;
+    gap: 10px;
+    min-width: 0;
+  }
+  .bar-row-a .bar-label {
+    flex: 0 0 46px;
+  }
+  .bar-row-a input[type='range'] {
+    flex: 1;
+    width: auto;
+    min-width: 0;
+  }
+  /* off your own corner it is only the weather and two sliders: one low
+     strip, squeezed to fit rather than wrapped into a second line */
+  body:not(.mode-tend) .bar-row-a {
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+  body:not(.mode-tend) .bar-row-a .bar-label {
+    flex: none;
+  }
+  body:not(.mode-tend) .bar-row-a .bar-group {
+    flex: 1 1 auto;
+    gap: 7px;
+  }
+
+  .bar-row-b {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    padding-top: 8px;
+    border-top: 1px solid var(--line-soft);
+  }
+  .bar-row-b .chip {
+    padding: 6px 11px;
+  }
+  /* lifted out of its row to sit opposite the weather, where it costs no
+     extra line of a menu that is already tall enough */
+  .bar-row-b .bar-count {
+    position: absolute;
+    top: 16px;
+    right: 14px;
+    margin: 0;
+  }
+  /* everything in row B is tend-only, so off your own corner it is empty */
+  body:not(.mode-tend) .bar-row-b {
+    display: none;
+  }
+  /* the bench pane covers the garden; the menu belongs to the bed */
+  body.pane-bench #garden-bar {
+    display: none;
+  }
+
+  /* ---------- pane: the bed ---------- */
+
+  body.mode-tend.pane-bed #journal {
+    display: none;
+  }
+  body.mode-tend.pane-bed #pane-design {
+    display: block;
+    position: fixed;
+    top: calc(12px + env(safe-area-inset-top, 0px));
+    left: 12px;
+    z-index: 11;
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    padding: 8px 12px;
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(14px) saturate(1.25);
+    backdrop-filter: blur(14px) saturate(1.25);
+    box-shadow: var(--shadow);
+  }
+
+  /* ---------- pane: the potting bench ---------- */
+
+  /* docked to the top of the screen, and no longer draggable — bench.js
+     clears the position it remembers for the desktop panel */
+  body.mode-tend.pane-bench #bench {
+    display: block;
+    top: calc(10px + env(safe-area-inset-top, 0px));
+    left: 10px;
+    right: 10px;
+    width: auto;
+    padding: 8px 10px 4px;
+  }
+  body.pane-bench #bench-grip {
+    display: none;
+  }
+  body.pane-bench {
+    --preview-h: min(31vh, 268px);
+  }
+  body.pane-bench #bench-canvas {
+    height: var(--preview-h);
+  }
+  /* --bench-h is measured by bench.js so the journal starts just under the
+     preview however the hint wraps; the fallback is the same sum by hand
+     (preview + the card's padding, hint line and border) for the first frame */
+  body.mode-tend.pane-bench #journal {
+    display: flex;
+    top: calc(
+      20px + env(safe-area-inset-top, 0px) + var(--bench-h, calc(var(--preview-h) + 30px))
+    );
+    left: 10px;
+    right: 10px;
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    width: auto;
+    padding: 10px 12px;
+  }
+  body.pane-bench #shelf-wrap {
+    max-height: 84px;
+  }
+  body.mode-tend.pane-bench #pane-plant {
+    display: block;
+    width: 100%;
+    margin-top: 4px;
+    padding: 11px 10px;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    color: #fdfaf3;
+    background: var(--leaf);
+    border-color: rgba(255, 255, 255, 0.42);
+  }
+  /* nothing to leave *to* from here — "plant it" is the way out */
+  body.pane-bench #street-btn {
+    display: none;
+  }
+
+}
+
+/* Short phones: the sliders are what the potting bench is *for*, so the
+   preview and the packet shelf give up their share of a cramped screen. */
+@media (max-width: 760px) and (max-height: 740px) {
+  body.pane-bench {
+    --preview-h: min(24vh, 200px);
+  }
+  body.pane-bench #shelf-wrap {
+    max-height: 56px;
+  }
+}
+
+/* ============================================================
+   TOUCH CONTROLS — injected by src/touch.js on coarse-pointer
+   devices only. `body.touch-input` is the switch. Everything
+   here lives above #hud (z-index 8) and below #garden-bar (10).
+   ============================================================ */
+
+/* never let a drag scroll or pinch-zoom the page out from under the walk */
+#scene {
+  touch-action: none;
+}
+
+/* the desktop "E — …" prompt is meaningless without a keyboard;
+   #touch-interact below is its tappable stand-in */
+body.touch-input #interact-chip {
+  display: none;
+}
+
+#touch-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 9;
+  pointer-events: none; /* children opt back in */
+  user-select: none;
+  -webkit-user-select: none;
+}
+#touch-layer.idle {
+  display: none; /* the potting-bench and transition views belong to OrbitControls */
+}
+
+/* ---------- thumb ring ---------- */
+
+#touch-stick {
+  position: absolute;
+  width: 96px;
+  height: 96px;
+  margin: 0;
+  transform: translate(-50%, -50%);
+  border: 1px solid var(--edge);
+  border-radius: 50%;
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(10px) saturate(1.2);
+  backdrop-filter: blur(10px) saturate(1.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  opacity: 0.34; /* a quiet suggestion until a thumb lands on it */
+  transition: opacity 0.22s ease;
+}
+#touch-stick.active {
+  opacity: 0.88;
+}
+#touch-nub {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 34px;
+  height: 34px;
+  transform: translate(-50%, -50%);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--glass-2);
+  box-shadow: 0 4px 12px rgba(74, 56, 42, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* ---------- tap-to-stop-by chip ---------- */
+
+#touch-interact {
+  position: absolute;
+  right: 18px;
+  bottom: calc(150px + env(safe-area-inset-bottom, 0px));
+  max-width: 62vw;
+  pointer-events: auto; /* #hud is inert; this must not be */
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--ink);
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(14px) saturate(1.25);
+  backdrop-filter: blur(14px) saturate(1.25);
+  border: 1px solid var(--edge);
+  border-radius: var(--r-ctl);
+  padding: 9px 14px;
+  box-shadow: var(--shadow);
+  -webkit-tap-highlight-color: transparent;
+}
+#touch-interact::after {
+  content: ' ✿';
+  color: var(--leaf);
+}
+#touch-interact:active {
+  background: var(--leaf-soft);
+}
+/* "a quiet corner, waiting for a gardener" — nothing to tap */
+#touch-interact.passive {
+  pointer-events: none;
+  color: var(--ink-soft);
+  font-weight: 400;
+  background: var(--glass-2);
+  border-color: var(--line-soft);
+  box-shadow: none;
+}
+#touch-interact.passive::after {
+  content: '';
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #touch-stick {
+    transition: none;
+  }
+}

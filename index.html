@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>the roundabouts — one garden, grown from a seed</title>
+    <meta
+      name="description"
+      content="A demo of the roundabouts' procedural generators: one misty intersection with a planted garden bed, grown from a single seed. Walk it in first person, re-sow the bed, and design flowers, mushrooms, trees, rocks, grasses and ponds from their parameters."
+    />
+    <meta name="theme-color" content="#f2e2d8" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="the roundabouts — one garden, grown from a seed" />
+    <meta
+      property="og:description"
+      content="One misty roundabout, planted by the generators from a single seed. Walk it, re-sow it, and grow specimens on the potting bench."
+    />
+    <meta property="og:image" content="https://roundabouts.artificialisabel.com/og.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="A pastel roundabout garden of flowers and mushrooms floating in soft mist" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#127804;</text></svg>" />
+  </head>
+  <body class="mode-walk">
+    <canvas id="scene"></canvas>
+
+    <header id="masthead">
+      <h1>the roundabouts</h1>
+      <p class="sub">one corner of it, grown from a seed</p>
+    </header>
+
+    <main id="journal" aria-label="specimen designer">
+      <nav id="tabs" aria-label="specimen type"></nav>
+      <section id="controls"></section>
+      <section id="seed-row"></section>
+      <section id="shelf-wrap">
+        <h3 class="group-title">seed packets</h3>
+        <div id="shelf"></div>
+      </section>
+      <!-- phones only: the foot of the potting bench, back to the bed -->
+      <button id="pane-plant" class="chip">back to the bed ↩</button>
+    </main>
+
+    <!-- phones only: from the bed back to the potting bench -->
+    <button id="pane-design" class="chip">✎ design</button>
+
+    <aside id="garden-bar" aria-label="garden controls"></aside>
+
+    <aside id="bench" class="wobble-a" aria-label="specimen preview">
+      <div id="bench-grip" title="drag to move this panel"></div>
+      <canvas id="bench-canvas"></canvas>
+      <p class="bench-hint">orbit &middot; zoom &middot; right-drag pan</p>
+    </aside>
+
+    <button id="street-btn" class="chip" hidden>↩ back to the street</button>
+
+    <div id="hud" aria-hidden="true">
+      <div id="reticle"></div>
+      <div id="interact-chip" hidden></div>
+      <div id="walk-overlay" hidden>
+        <div class="wobble-a walk-card">
+          <h2>click to take a walk</h2>
+          <p>W to walk &middot; A/D to turn &middot; mouse to look &middot; E at the roundabout to stop by</p>
+        </div>
+      </div>
+    </div>
+
+    <p id="hint">W to walk &middot; A/D to turn &middot; E at the roundabout to stop by &middot; esc to let go</p>
+    <div id="toast" role="status"></div>
+
+    <div id="vignette" aria-hidden="true"></div>
+    <div id="grain" aria-hidden="true"></div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
